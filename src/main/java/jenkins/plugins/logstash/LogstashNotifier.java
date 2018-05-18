@@ -44,6 +44,7 @@ import java.io.PrintStream;
 import java.io.IOException;
 
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.jenkinsci.Symbol;
 
@@ -57,6 +58,7 @@ public class LogstashNotifier extends Notifier implements SimpleBuildStep {
 
   private int maxLines;
   private boolean failBuild;
+  private String pipelineData = null;
 
   @DataBoundConstructor
   public LogstashNotifier(int maxLines, boolean failBuild) {
@@ -74,6 +76,11 @@ public class LogstashNotifier extends Notifier implements SimpleBuildStep {
     return failBuild;
   }
 
+  public String getPipelineData() { return pipelineData; }
+
+  @DataBoundSetter
+  public void setPipelineData(String pipelineData) { this.pipelineData = pipelineData; }
+
   @Override
   public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
     return perform(build, listener);
@@ -90,7 +97,11 @@ public class LogstashNotifier extends Notifier implements SimpleBuildStep {
   private boolean perform(Run<?, ?> run, TaskListener listener) {
     PrintStream errorPrintStream = listener.getLogger();
     LogstashWriter logstash = getLogStashWriter(run, errorPrintStream, listener);
-    logstash.writeBuildLog(maxLines);
+    if (pipelineData != null) {
+        logstash.writePipelineData(pipelineData);
+    } else {
+        logstash.writeBuildLog(maxLines);
+    }
     return !(failBuild && logstash.isConnectionBroken());
   }
 

@@ -52,4 +52,21 @@ public abstract class AbstractLogstashIndexerDao implements LogstashIndexerDao {
     return payload;
   }
 
+  @Override
+  public JSONObject buildPayload(BuildData buildData, String jenkinsUrl, String pipelineData) {
+    JSONObject payload = new JSONObject();
+    JSONObject pipelineDataJson = JSONObject.fromObject(pipelineData);
+
+    payload.put("data", buildData.toJson());
+    payload.put("pipelineData", pipelineDataJson);
+    payload.put("message", "");
+    payload.put("source", "jenkins");
+    payload.put("source_host", jenkinsUrl);
+    payload.put("@buildTimestamp", buildData.getTimestamp());
+    payload.put("@timestamp", LogstashConfiguration.getInstance().getDateFormatter().format(Calendar.getInstance().getTime()));
+    payload.put("@version", 1);
+
+    return payload;
+  }
+
 }

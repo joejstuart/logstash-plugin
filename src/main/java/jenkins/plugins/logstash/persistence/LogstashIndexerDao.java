@@ -79,4 +79,6 @@ public interface LogstashIndexerDao {
    * @return The formatted JSON object, never null
    */
   public JSONObject buildPayload(BuildData buildData, String jenkinsUrl, List<String> logLines);
+
+  public JSONObject buildPayload(BuildData buildData, String jenkinsUrl, String pipelineData);
 }
